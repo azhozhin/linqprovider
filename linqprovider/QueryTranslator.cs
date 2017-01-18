@@ -109,9 +109,9 @@ namespace linqprovider
                         _sb.Append((bool) c.Value ? 1 : 0);
                         break;
                     case TypeCode.String:
-                        _sb.Append("‘");
+                        _sb.Append("'");
                         _sb.Append(c.Value);
-                        _sb.Append("‘");
+                        _sb.Append("'");
                         break;
                     case TypeCode.Object:
                         throw new NotSupportedException($"The constant for ‘{c.Value}’ is not supported");

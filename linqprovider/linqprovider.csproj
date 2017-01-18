@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbQueryProvider.cs" />
+    <Compile Include="Enumerator.cs" />
     <Compile Include="ExpressionVisitor.cs" />
     <Compile Include="ObjectReader.cs" />
     <Compile Include="Program.cs" />

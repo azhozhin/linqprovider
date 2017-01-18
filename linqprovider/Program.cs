@@ -9,52 +9,50 @@ namespace linqprovider
     {
         public static void Main(string[] args)
         {
-            Console.Out.WriteLine("Hello");
-            using (DbConnection con = new SqliteConnection("Data Source=|DataDirectory|db.sqlite"))
+            using (DbConnection con = new SqliteConnection("Data Source=|DataDirectory|Chinook_Sqlite.sqlite"))
             {
                 con.Open();
-                var db = new Northwind(con);
+                var db = new Chinook(con);
                 var query = db.Customers.Where(c => c.City == "London");
                 Console.WriteLine($"Query:\n{query}\n");
 
                 var list = query.ToList();
                 foreach (var item in list)
                 {
-                    Console.WriteLine($"Name: {item.ContactName}");
+                    Console.WriteLine($"Name: {item.FirstName}");
                 }
-                Console.ReadLine();
             }
         }
     }
 
-    public class Customers
+    public class Customer
     {
-        public string CustomerID;
-        public string ContactName;
+        public long CustomerId;
+        public string FirstName;
         public string Phone;
         public string City;
         public string Country;
     }
 
 
-    public class Orders
+    public class Invoice
     {
-        public int OrderID;
-        public string CustomerID;
-        public DateTime OrderDate;
+        public long OrderId;
+        public long CustomerId;
+        public DateTime InvoiceDate;
     }
 
 
-    public class Northwind
+    public class Chinook
     {
-        public Query<Customers> Customers;
-        public Query<Orders> Orders;
+        public Query<Customer> Customers;
+        public Query<Invoice> Invoices;
 
-        public Northwind(DbConnection connection)
+        public Chinook(DbConnection connection)
         {
             QueryProvider provider = new DbQueryProvider(connection);
-            Customers = new Query<Customers>(provider);
-            Orders = new Query<Orders>(provider);
+            Customers = new Query<Customer>(provider);
+            Invoices = new Query<Invoice>(provider);
         }
     }
 }
