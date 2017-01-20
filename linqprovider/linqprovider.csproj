@@ -63,6 +63,7 @@
     <Compile Include="QueryProvider.cs" />
     <Compile Include="QueryTranslator.cs" />
     <Compile Include="TypeSystem.cs" />
+    <Compile Include="Evaluator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

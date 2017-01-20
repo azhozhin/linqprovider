@@ -13,7 +13,9 @@ namespace linqprovider
             {
                 con.Open();
                 var db = new Chinook(con);
-                var query = db.Customers.Where(c => c.City == "London");
+                var city = "London";
+                var query = db.Customers.Where(c => c.City == city);
+                Console.WriteLine(query.Expression.ToString());
                 Console.WriteLine($"Query:\n{query}\n");
 
                 var list = query.ToList();

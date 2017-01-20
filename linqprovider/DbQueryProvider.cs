@@ -7,7 +7,7 @@ namespace linqprovider
 {
     public class DbQueryProvider : QueryProvider
     {
-        readonly DbConnection _connection;
+        private readonly DbConnection _connection;
 
         public DbQueryProvider(DbConnection connection)
         {
@@ -35,6 +35,7 @@ namespace linqprovider
 
         private static string Translate(Expression expression)
         {
+            expression = Evaluator.PartialEval(expression);
             return new QueryTranslator().Translate(expression);
         }
     }
