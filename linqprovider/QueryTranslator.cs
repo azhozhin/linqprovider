@@ -8,23 +8,50 @@ namespace linqprovider
     public class QueryTranslator : ExpressionVisitor
     {
         private StringBuilder _sb;
+        private ParameterExpression _row;
+        private ColumnProjection _projection;
 
-        internal string Translate(Expression expression)
+        internal QueryTranslator()
+        {
+
+        }
+
+        internal TranslateResult Translate(Expression expression)
         {
             _sb = new StringBuilder();
+            _row = Expression.Parameter(typeof(ProjectionRow), "row");
             Visit(expression);
-            return _sb.ToString();
+            return new TranslateResult
+            {
+                CommandText = _sb.ToString(),
+                Projector = _projection != null ? Expression.Lambda(_projection.Selector, _row) : null,
+            };
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
             if (m.Method.DeclaringType == typeof(Queryable) && m.Method.Name == "Where")
             {
-                _sb.Append("SELECT * FROM (");
-                Visit(m.Arguments[0]);
-                _sb.Append(") AS T WHERE ");
                 var lambda = (LambdaExpression) StripQuotes(m.Arguments[1]);
+                _sb.Append("SELECT ");
+                _sb.Append("*");
+                _sb.Append(" FROM (");
+                Visit(m.Arguments[0]);
+                _sb.Append(") AS T");
+                _sb.Append(" WHERE ");
                 Visit(lambda.Body);
+                return m;
+            }
+            if (m.Method.Name == "Select")
+            {
+                var lambda = (LambdaExpression) StripQuotes(m.Arguments[1]);
+                var localProjection = new ColumnProjector().ProjectColumns(lambda.Body, _row);
+                _sb.Append("SELECT ");
+                _sb.Append(localProjection.Columns);
+                _sb.Append(" FROM (");
+                Visit(m.Arguments[0]);
+                _sb.Append(") AS T");
+                _projection = localProjection;
                 return m;
             }
 
@@ -141,5 +168,13 @@ namespace linqprovider
             }
             return e;
         }
+    }
+
+    internal class TranslateResult {
+
+        internal string CommandText;
+
+        internal LambdaExpression Projector;
+
     }
 }

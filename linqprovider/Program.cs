@@ -14,14 +14,15 @@ namespace linqprovider
                 con.Open();
                 var db = new Chinook(con);
                 var city = "London";
-                var query = db.Customers.Where(c => c.City == city);
+                var query = db.Customers.Where(c => c.City == city)
+                    .Select(c => new {Name = c.FirstName, Phone = c.Phone});
                 Console.WriteLine(query.Expression.ToString());
                 Console.WriteLine($"Query:\n{query}\n");
 
                 var list = query.ToList();
                 foreach (var item in list)
                 {
-                    Console.WriteLine($"Name: {item.FirstName}");
+                    Console.WriteLine($"{item}");
                 }
             }
         }
@@ -56,5 +57,10 @@ namespace linqprovider
             Customers = new Query<Customer>(provider);
             Invoices = new Query<Invoice>(provider);
         }
+    }
+
+    public class X{
+        public String Name;
+        public String Phone;
     }
 }

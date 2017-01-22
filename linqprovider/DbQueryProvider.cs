@@ -16,16 +16,28 @@ namespace linqprovider
 
         public override string GetQueryText(Expression expression)
         {
-            return Translate(expression);
+            return Translate(expression).CommandText;
         }
 
         public override object Execute(Expression expression)
         {
+            var result = Translate(expression);
+
             var cmd = _connection.CreateCommand();
-            cmd.CommandText = Translate(expression);
+            cmd.CommandText =result.CommandText;
             var reader = cmd.ExecuteReader();
             var elementType = TypeSystem.GetElementType(expression.Type);
 
+            if (result.Projector != null)
+            {
+                var projector = result.Projector.Compile();
+                return Activator.CreateInstance(
+                    typeof(ProjectionReader<>).MakeGenericType(elementType),
+                    BindingFlags.Instance | BindingFlags.NonPublic, null,
+                    new object[] {reader, projector},
+                    null);
+
+            }
             return Activator.CreateInstance(
                 typeof(ObjectReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
@@ -33,7 +45,7 @@ namespace linqprovider
                 null);
         }
 
-        private static string Translate(Expression expression)
+        private static TranslateResult Translate(Expression expression)
         {
             expression = Evaluator.PartialEval(expression);
             return new QueryTranslator().Translate(expression);
