@@ -89,7 +89,7 @@ namespace linqprovider
                     return VisitListInit((ListInitExpression) exp);
 
                 default:
-                    throw new Exception($"Unhandled expression type: ‘{exp.NodeType}'")
+                    throw new Exception($"Unhandled expression type: '{exp.NodeType}'")
                         ;
             }
         }
@@ -109,7 +109,7 @@ namespace linqprovider
                     return VisitMemberListBinding((MemberListBinding) binding);
 
                 default:
-                    throw new Exception($"Unhandled binding type ‘{binding.BindingType}'");
+                    throw new Exception($"Unhandled binding type '{binding.BindingType}'");
             }
         }
 

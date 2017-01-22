@@ -14,8 +14,12 @@ namespace linqprovider
                 con.Open();
                 var db = new Chinook(con);
                 var city = "London";
-                var query = db.Customers.Where(c => c.City == city)
-                    .Select(c => new {Name = c.FirstName, Phone = c.Phone});
+                var query = db.Customers.Select(c => new
+                    {
+                        Name = c.FirstName,
+                        Location = new {City = c.City, Country = c.Country}
+                    })
+                    .Where(c => c.Location.City == city);
                 Console.WriteLine(query.Expression.ToString());
                 Console.WriteLine($"Query:\n{query}\n");
 
@@ -32,19 +36,31 @@ namespace linqprovider
     {
         public long CustomerId;
         public string FirstName;
-        public string Phone;
+        public string LastName;
+        public string Company;
+        public string Address;
         public string City;
+        public string State;
         public string Country;
+        public string PostalCode;
+        public string Phone;
+        public string Fax;
+        public string Email;
+        public long SupportRepId;
     }
-
 
     public class Invoice
     {
-        public long OrderId;
+        public long InvoiceId;
         public long CustomerId;
         public DateTime InvoiceDate;
+        public string BillingAddress;
+        public string BillingCity;
+        public string BillingState;
+        public string BillingCountry;
+        public string BillingPostalCode;
+        public decimal Total;
     }
-
 
     public class Chinook
     {

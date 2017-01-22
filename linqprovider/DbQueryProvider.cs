@@ -22,33 +22,38 @@ namespace linqprovider
         public override object Execute(Expression expression)
         {
             var result = Translate(expression);
+            var projector = result.Projector.Compile();
 
             var cmd = _connection.CreateCommand();
-            cmd.CommandText =result.CommandText;
+            cmd.CommandText = result.CommandText;
             var reader = cmd.ExecuteReader();
             var elementType = TypeSystem.GetElementType(expression.Type);
 
-            if (result.Projector != null)
-            {
-                var projector = result.Projector.Compile();
-                return Activator.CreateInstance(
-                    typeof(ProjectionReader<>).MakeGenericType(elementType),
-                    BindingFlags.Instance | BindingFlags.NonPublic, null,
-                    new object[] {reader, projector},
-                    null);
-
-            }
             return Activator.CreateInstance(
-                typeof(ObjectReader<>).MakeGenericType(elementType),
+                typeof(ProjectionReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] {reader},
+                new object[] {reader, projector},
                 null);
         }
 
-        private static TranslateResult Translate(Expression expression)
+        private TranslateResult Translate(Expression expression)
         {
-            expression = Evaluator.PartialEval(expression);
-            return new QueryTranslator().Translate(expression);
+            var localExpression = Evaluator.PartialEval(expression);
+            var proj = (ProjectionExpression) new QueryBinder().Bind(localExpression);
+            var commandText = new QueryFormatter().Format(proj.Source);
+            var projector = new ProjectionBuilder().Build(proj.Projector);
+
+            return new TranslateResult
+            {
+                CommandText = commandText,
+                Projector = projector
+            };
+        }
+
+        internal class TranslateResult
+        {
+            public string CommandText;
+            public LambdaExpression Projector;
         }
     }
 }
