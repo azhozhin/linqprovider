@@ -38,17 +38,11 @@ namespace linqprovider
             readonly FieldInfo[] _fields;
             int[] _fieldLookup;
             T _current;
-            private Func<ProjectionRow, T> _projector;
 
-            internal Enumerator(DbDataReader reader) : this(reader, null)
-            {
-            }
-
-            internal Enumerator(DbDataReader reader, Func<ProjectionRow, T> projector)
+            internal Enumerator(DbDataReader reader)
             {
                 _reader = reader;
                 _fields = typeof(T).GetFields();
-                _projector = projector;
             }
 
             public T Current => _current;
